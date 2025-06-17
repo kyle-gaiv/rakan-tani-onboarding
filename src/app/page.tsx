@@ -1,103 +1,198 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Section from "@/components/Section";
+import { MermaidDiagram } from "@lightenna/react-mermaid-diagram";
+import { jsonToMermaid, nodeIdToHlt } from "@/utils/helpers";
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import TextInput from "@/components/TextInput";
+import Button from "@/components/Button";
+import { LatLngLiteral } from "leaflet";
+import { useSearchParams } from "next/navigation";
+import { useMqttContext } from "@/api/MqttContext";
+import { useID } from "@/api/IDContext";
+import DropdownInput from "@/components/DropdownInput";
+import dynamic from "next/dynamic";
+
+// Dynamically import LocationInput to avoid SSR issues with Leaflet
+const LocationInputDynamic = dynamic(
+  () => import("@/components/LocationInput"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center ">
+        <p className="text-lg font-semibold">Loading map...</p>
+      </div>
+    ),
+  },
+);
+
+export default function WelcomePage() {
+  const [mermaidChartText, setMermaidChartText] = useState<string>(`
+    flowchart LR
+        A-->B
+  `);
+  const [mermaidLoading, setMermaidLoading] = useState<boolean>(true);
+  const [name, setName] = useState<string>("");
+  const [location, setLocation] = useState<LatLngLiteral | undefined>();
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const { publish } = useMqttContext();
+  const searchParams = useSearchParams();
+  const { id: sessionID } = useID();
+  const [formErrors, setFormErrors] = useState({
+    name: "",
+    location: "",
+    day: "",
+    ricetype: "",
+  });
+
+  // MR220 CL2 = 0, MR47 = 1, MRQ76 = 2
+  const riceTypeOptions = ["MR220 CL2", "MR47", "MRQ76"];
+  const [selectedRiceType, setSelectedRiceType] = useState<number>(0);
+
+  const handleSaveInformation = () => {
+    const inputErrors = {
+      name: !name ? "Name is required" : "",
+      location: !location ? "Location is required" : "",
+      day: !selectedDay ? "Current stage is required" : "",
+      ricetype: selectedRiceType === null ? "Rice type is required" : "",
+    };
+    setFormErrors(inputErrors);
+
+    if (!name || !location || !selectedDay || selectedRiceType === null) {
+      toast.error("Please fill in all fields before saving!");
+      return;
+    }
+
+    const message = JSON.stringify({
+      // takes sessionId from URL query string or uses sessionID from context
+      // e.g. ...?sessionId=12345
+      sessionId: Number(searchParams.get("sessionId")) || sessionID,
+      hlt: Number(selectedDay),
+      name: name,
+      ricetype: Number(selectedRiceType),
+      location: {
+        x: location?.lng,
+        y: location?.lat,
+      },
+    });
+    try {
+      publish("onboard", message); // send info to MQTT topic
+      toast.success("Information saved successfully!");
+    } catch (error) {
+      console.error("Error publishing to MQTT:", error);
+      toast.error(
+        "Error publishing to MQTT: " +
+          (error instanceof Error ? error.message : "Unknown error"),
+      );
+    }
+  };
+
+  // Runs initial query to get schedule and convert to mermaid format
+  useEffect(() => {
+    const generateSchedule = async () => {
+      setMermaidLoading(true);
+      const mermaidText = await jsonToMermaid();
+      setMermaidChartText(mermaidText);
+      setMermaidLoading(false);
+    };
+
+    generateSchedule();
+  }, []);
+
+  // Handler for click events in mermaid diagram
+  // Sets nodeId to the ID of the clicked node (hlt) to trigger HLT query
+  useEffect(() => {
+    if (!mermaidLoading) {
+      (window as any).handleDayNodeClick = function (nodeId: string) {
+        const dayHlt = nodeIdToHlt(nodeId);
+        setSelectedDay(dayHlt.toString());
+        toast.success(`Day ${dayHlt} selected!`);
+        // Remove any previous 'selected' class assignment
+        const cleanedMermaidText = mermaidChartText.replace(
+          /class\s+\d+\s+selected/g,
+          "",
+        );
+        // Add the new 'selected' class assignment to the clicked node
+        const newMermaidText =
+          cleanedMermaidText + `\n  class ${nodeId} selected\n`;
+        setMermaidChartText(newMermaidText);
+      };
+    }
+  }, [mermaidLoading]);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    <div className="flex flex-col items-start justify-start min-h-screen bg-gray-100 p-8 gap-8 text-black">
+      <div className="flex justify-center w-full">
+        <h1 className="text-4xl font-bold mb-4">Onboarding Page</h1>
+      </div>
+      <div className="w-full">
+        <Section>
+          <div className="flex flex-col items-start justify-start gap-4 w-full">
+            <h2 className="text-2xl font-semibold">Collect Information</h2>
+            <div className="grid grid-cols-3 gap-8 w-full">
+              <div className="flex flex-col items-start justify-start gap-4 w-full">
+                <TextInput
+                  label="Name"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  id="name"
+                  error={!!formErrors.name}
+                  errorText={formErrors.name}
+                />
+                <DropdownInput
+                  label="Rice Type"
+                  id="rice-type"
+                  value={selectedRiceType}
+                  onChange={(e) => setSelectedRiceType(Number(e.target.value))}
+                  options={riceTypeOptions.map((type, index) => ({
+                    value: index.toString(),
+                    label: type,
+                  }))}
+                  error={!!formErrors.ricetype}
+                  errorText={formErrors.ricetype}
+                />
+              </div>
+              <div className="col-span-2 w-full h-full">
+                {/* Can set initial position by taking from database if present */}
+                <LocationInputDynamic
+                  setLocation={setLocation}
+                  initialPosition={undefined}
+                  error={!!formErrors.location}
+                  errorText={formErrors.location}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col items-start justify-start gap-4 w-full mt-2">
+            <h3 className="text-lg font-bold">
+              Click a day to select your current stage
+            </h3>
+            {!!formErrors.day && (
+              <p className="text-sm text-red-500">{formErrors.day}</p>
+            )}
+            <div
+              className={`w-full overflow-x-auto bg-white rounded-md p-4 ${!!formErrors.day ? "border border-red-500" : ""}`}
+            >
+              {mermaidLoading ? (
+                <div className="text-lg text-black text-center font-semibold">
+                  Loading...
+                </div>
+              ) : (
+                <div className="shrink-0 h-auto" style={{ minWidth: `9000px` }}>
+                  <MermaidDiagram className="h-auto" securityLevel="loose">
+                    {mermaidChartText}
+                  </MermaidDiagram>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-row items-center justify-end w-full mt-2">
+            <Button label="Save Information" onClick={handleSaveInformation} />
+          </div>
+        </Section>
+      </div>
     </div>
   );
 }

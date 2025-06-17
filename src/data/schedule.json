@@ -1,0 +1,189 @@
+{
+  "schedule": [
+    {
+      "hlt": -45,
+      "nextHlt": -44,
+      "activity": ["Clearing & fallowing of paddy stump"],
+      "activityId": 1000
+    },
+    {
+      "hlt": -44,
+      "nextHlt": -43,
+      "activity": ["Paddy straw management - Cut/Burn/Plough"],
+      "activityId": 1001
+    },
+    {
+      "hlt": -43,
+      "nextHlt": -40,
+      "activity": ["Field infrastructure maintenance - Tillage & puddling"],
+      "activityId": 1003
+    },
+    {
+      "hlt": -40,
+      "nextHlt": -35,
+      "activity": ["Soil pH & EC measurement"],
+      "activityId": 1005
+    },
+    {
+      "hlt": -35,
+      "nextHlt": -28,
+      "activity": ["Field plot herbicide"],
+      "activityId": 1007
+    },
+    {
+      "hlt": -28,
+      "nextHlt": -20,
+      "activity": ["1st ploughing & boundary weed control"],
+      "activityId": 1010
+    },
+    {
+      "hlt": -20,
+      "nextHlt": -19,
+      "activity": ["Seed soaking & treatment (transplanting method)"],
+      "activityId": 1011
+    },
+    {
+      "hlt": -19,
+      "nextHlt": -18,
+      "activity": ["Draining treated seeds (transplanting)"],
+      "activityId": 1013
+    },
+    {
+      "hlt": -18,
+      "nextHlt": -10,
+      "activity": ["Sowing for seedling preparation (transplanting)"],
+      "activityId": 1016
+    },
+    {
+      "hlt": -10,
+      "nextHlt": -2,
+      "activity": ["2nd Ploughing", "Rat control"],
+      "activityId": 1018
+    },
+    {
+      "hlt": -2,
+      "nextHlt": -1,
+      "activity": [
+        "Seed soaking, treatment & germination (broadcasting method)",
+        "3rd Ploughing/harrowing, drainage & side trenching"
+      ],
+      "activityId": 1019
+    },
+    {
+      "hlt": -1,
+      "nextHlt": 0,
+      "activity": ["Draining treated seeds (broadcasting) & SGE control"],
+      "activityId": 1022
+    },
+    {
+      "hlt": 0,
+      "nextHlt": 1,
+      "activity": ["Broadcasting seeds, weed control at boundary"],
+      "activityId": 1024
+    },
+    {
+      "hlt": 1,
+      "nextHlt": 3,
+      "activity": ["Weed control 1 (transplanting)"],
+      "activityId": 1025
+    },
+    {
+      "hlt": 3,
+      "nextHlt": 7,
+      "activity": ["Molluscicide - SGE control"],
+      "activityId": 1027
+    },
+    {
+      "hlt": 7,
+      "nextHlt": 9,
+      "activity": ["Herbicide - Weed control 2"],
+      "activityId": 1030
+    },
+    {
+      "hlt": 9,
+      "nextHlt": 10,
+      "activity": ["Rodenticide - Rat control"],
+      "activityId": 1031
+    },
+    {
+      "hlt": 10,
+      "nextHlt": 15,
+      "activity": ["1st Fertilizer application, Seedling count"],
+      "activityId": 1034
+    },
+    {
+      "hlt": 15,
+      "nextHlt": 17,
+      "activity": ["Transplanting (if needed)"],
+      "activityId": 1035
+    },
+    {
+      "hlt": 17,
+      "nextHlt": 18,
+      "activity": ["Pest & Disease Control 1"],
+      "activityId": 1038
+    },
+    {
+      "hlt": 18,
+      "nextHlt": 20,
+      "activity": ["2nd Fertilizer application"],
+      "activityId": 1040
+    },
+    {
+      "hlt": 20,
+      "nextHlt": 35,
+      "activity": ["Herbicide - Weed control 3"],
+      "activityId": 1041
+    },
+    {
+      "hlt": 35,
+      "nextHlt": 40,
+      "activity": ["Pest & Disease Control 2 + Nutrient supplements"],
+      "activityId": 1043
+    },
+    {
+      "hlt": 40,
+      "nextHlt": 60,
+      "activity": ["3rd Fertilizer application"],
+      "activityId": 1045
+    },
+    {
+      "hlt": 60,
+      "nextHlt": 80,
+      "activity": [
+        "Pest & Disease Control 3, Bacteria control, Nutrient supplements"
+      ],
+      "activityId": 1048
+    },
+    {
+      "hlt": 80,
+      "nextHlt": 85,
+      "activity": ["Pest & Disease Control 4, Bacteria control (bactericide)"],
+      "activityId": 1049
+    },
+    {
+      "hlt": 85,
+      "nextHlt": 90,
+      "activity": ["Weed removal (weedy rice) manually"],
+      "activityId": 1052
+    },
+    {
+      "hlt": 90,
+      "nextHlt": 95,
+      "activity": ["Pest & Disease Control 5"],
+      "activityId": 1053
+    },
+    {
+      "hlt": 95,
+      "nextHlt": 100,
+      "activity": ["Field Coordinator monitoring"],
+      "activityId": 1056
+    },
+    {
+      "hlt": 100,
+      "nextHlt": 95,
+      "activity": ["Harvesting"],
+      "activityId": 1057
+    }
+  ]
+}

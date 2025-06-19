@@ -62,6 +62,7 @@ export default function LocationInput({
       const marker = markerRef.current;
       if (!marker) return;
 
+      // Handle when marker is dragged
       const handleDrag = () => {
         const latLng = marker.getLatLng();
         const containerPoint = map.latLngToContainerPoint(latLng);
@@ -72,6 +73,7 @@ export default function LocationInput({
         let dx = 0,
           dy = 0;
 
+        // Auto pan the map if the marker is near the edge of the map
         if (containerPoint.x < buffer) dx = -panStep;
         else if (containerPoint.x > container.clientWidth - buffer)
           dx = panStep;
@@ -85,6 +87,7 @@ export default function LocationInput({
         }
       };
 
+      // Handle when marker is dropped after dragging
       const handleDragEnd = () => {
         const latLng = marker.getLatLng();
         setMarkerPosition(latLng);
@@ -109,6 +112,7 @@ export default function LocationInput({
     );
   }
 
+  // Handle when user clicks on the map to place a marker
   function MapClickHandler({
     setMarkerPosition,
   }: {

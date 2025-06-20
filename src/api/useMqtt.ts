@@ -15,7 +15,7 @@ export const useMqtt = () => {
 
     try {
       clientRef.current = new Paho.Client(
-        "35.240.204.179",
+        "dev.gaiv.my",
         9001,
         "/ws",
         clientId,

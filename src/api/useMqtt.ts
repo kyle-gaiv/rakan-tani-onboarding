@@ -14,12 +14,7 @@ export const useMqtt = () => {
     if (clientRef.current) return;
 
     try {
-      clientRef.current = new Paho.Client(
-        "dev.gaiv.my",
-        9001,
-        "/ws",
-        clientId,
-      );
+      clientRef.current = new Paho.Client("dev.gaiv.my", 9001, "/ws", clientId);
       setIsClientReady(true);
     } catch (error) {
       console.error("Error creating MQTT client:", error);

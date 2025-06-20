@@ -1,7 +1,6 @@
 "use client";
 
 import Section from "@/components/Section";
-import { MermaidDiagram } from "@lightenna/react-mermaid-diagram";
 import { jsonToMermaid, nodeIdToHlt } from "@/utils/helpers";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -22,6 +21,22 @@ const LocationInputDynamic = dynamic(
     loading: () => (
       <div className="flex items-center justify-center ">
         <p className="text-lg font-semibold">Loading map...</p>
+      </div>
+    ),
+  },
+);
+
+// Dynamically import MermaidDiagram to avoid SSR issues
+const MermaidDiagramDynamic = dynamic(
+  () =>
+    import("@lightenna/react-mermaid-diagram").then(
+      (mod) => mod.MermaidDiagram,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center">
+        <p className="text-lg font-semibold">Loading diagram...</p>
       </div>
     ),
   },
@@ -181,9 +196,12 @@ export default function WelcomePage() {
                 </div>
               ) : (
                 <div className="shrink-0 h-auto" style={{ minWidth: `9000px` }}>
-                  <MermaidDiagram className="h-auto" securityLevel="loose">
+                  <MermaidDiagramDynamic
+                    className="h-auto"
+                    securityLevel="loose"
+                  >
                     {mermaidChartText}
-                  </MermaidDiagram>
+                  </MermaidDiagramDynamic>
                 </div>
               )}
             </div>

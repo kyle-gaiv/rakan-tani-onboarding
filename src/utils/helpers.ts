@@ -1,7 +1,8 @@
 import schedule from "../data/schedule.json";
+import { v4 as uuidv4 } from "uuid";
 
 export function generateNumericUUID(): string {
-  const uuid = crypto.randomUUID();
+  const uuid = uuidv4();
   const numericUuid = uuid.replace(/-/g, "").replace(/[^0-9]/g, "");
 
   // If the UUID starts with 0, replace the first digit with a random digit from 1-9

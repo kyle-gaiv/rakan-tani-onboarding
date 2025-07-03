@@ -12,12 +12,21 @@ import React, {
 interface IDContextType {
   id: string;
   setId: (id: string) => void;
+  phoneNumber: string;
+  setPhoneNumber: (phoneNumber: string) => void;
+  farmerId: number;
+  setFarmerId: (farmerId: number) => void;
+  jwt: string;
+  setJwt: (jwt: string) => void;
 }
 
 const IDContext = createContext<IDContextType | undefined>(undefined);
 
 export const IDProvider = ({ children }: { children: ReactNode }) => {
   const [id, setId] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [farmerId, setFarmerId] = useState<number>(-1);
+  const [jwt, setJwt] = useState<string>("");
 
   useEffect(() => {
     if (id === "") {
@@ -26,7 +35,20 @@ export const IDProvider = ({ children }: { children: ReactNode }) => {
   }, [id]);
 
   return (
-    <IDContext.Provider value={{ id, setId }}>{children}</IDContext.Provider>
+    <IDContext.Provider
+      value={{
+        id,
+        setId,
+        phoneNumber,
+        setPhoneNumber,
+        farmerId,
+        setFarmerId,
+        jwt,
+        setJwt,
+      }}
+    >
+      {children}
+    </IDContext.Provider>
   );
 };
 

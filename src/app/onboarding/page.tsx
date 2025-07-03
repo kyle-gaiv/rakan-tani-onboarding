@@ -143,6 +143,7 @@ export default function OnboardingPage() {
         setMermaidChartText(newMermaidText);
       };
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mermaidLoading]);
 
   return (

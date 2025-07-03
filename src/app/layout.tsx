@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import { MqttProvider } from "@/api/MqttContext";
+import { Suspense } from "react";
 import { IDProvider } from "@/api/IDContext";
 
 const geistSans = Geist({
@@ -30,16 +31,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <IDProvider>
-          <MqttProvider>
-            {children}
-            <ToastContainer
-              position="bottom-center"
-              autoClose={2500}
-              hideProgressBar={true}
-            />
-          </MqttProvider>
-        </IDProvider>
+        <Suspense>
+          <IDProvider>
+            <MqttProvider>
+              {children}
+              <ToastContainer
+                position="bottom-center"
+                autoClose={2500}
+                hideProgressBar={true}
+              />
+            </MqttProvider>
+          </IDProvider>
+        </Suspense>
       </body>
     </html>
   );

@@ -1,13 +1,21 @@
 import Paho from "paho-mqtt";
-import { useCallback, useState, useRef, useMemo, useEffect } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { useID } from "./IDContext";
+import { MQTTMessage } from "../utils/types";
 
-export const useMqtt = () => {
+export const useUATMqtt = (username: string, password: string) => {
   // Configuration for the MQTT client
   const [isClientReady, setIsClientReady] = useState<boolean>(false);
   const { id } = useID();
-  const clientId = "onboard-" + id; // Unique client ID for the MQTT client
+  const clientId = "uat-" + id; // Unique client ID for the MQTT client
   const clientRef = useRef<Paho.Client | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isMqttConnected, setIsMqttConnected] = useState<boolean>(false);
+
+  // States to hold messages and subscribed topics
+  const messagesRef = useRef<MQTTMessage[]>([]);
+  const [messages, setMessages] = useState<MQTTMessage[]>([]);
+  const subscribedTopicsRef = useRef<Set<string>>(new Set());
 
   // Populate states once the user has been prompted / local storage has been set
   useEffect(() => {
@@ -27,6 +35,21 @@ export const useMqtt = () => {
   // Ref to keep track of the MQTT client connection
   const connectedRef = useRef<boolean>(false);
 
+  // Resubscribe to all topics if connection is lost
+  const resubscribeToTopics = () => {
+    const client = clientRef.current!;
+    if (!client) return;
+
+    subscribedTopicsRef.current.forEach((topic) => {
+      client.subscribe(topic, {
+        onSuccess: () => {},
+        onFailure: (error: unknown) => {
+          console.error(`Failed to resubscribe to ${topic}:`, error);
+        },
+      });
+    });
+  };
+
   // Initialize the MQTT client
   const connect = useCallback(async () => {
     const client = clientRef.current!;
@@ -45,22 +68,41 @@ export const useMqtt = () => {
       client.onConnectionLost = (responseObject) => {
         connectedRef.current = false;
         if (responseObject.errorCode !== 0) {
-          console.error("Connection lost:", responseObject.errorMessage);
+          console.warn(
+            "Connection lost, reconnecting:",
+            responseObject.errorMessage,
+          );
           return;
         }
       };
 
+      // Handle incoming messages
+      client.onMessageArrived = (message) => {
+        // Process the message
+        const newMessage: MQTTMessage = {
+          topic: message.destinationName,
+          message: message.payloadString,
+        };
+        messagesRef.current.push(newMessage);
+        setMessages([...messagesRef.current]);
+      };
+
       const connectionSettings = {
-        userName: "onboard",
-        password: "onboard",
+        userName: username,
+        password: password,
         onSuccess: () => {
-          console.log("MQTT connected");
+          console.log("UAT MQTT connected");
+          resubscribeToTopics();
           connectedRef.current = true;
+          setLoading(false);
+          setIsMqttConnected(true);
         },
         onFailure: (error: unknown) => {
-          console.error("MQTT connection failed:", error);
+          console.warn("MQTT connection failed:", error);
+          setLoading(false);
+          setIsMqttConnected(false);
         },
-        reconnect: false,
+        reconnect: true,
         keepAliveInterval: 120,
       };
 
@@ -68,7 +110,7 @@ export const useMqtt = () => {
     } catch (error) {
       console.error("Connection error:", error);
     }
-  }, [clientId]);
+  }, [password, username]);
 
   // Disconnect the MQTT client
   const disconnect = useCallback(() => {
@@ -80,7 +122,26 @@ export const useMqtt = () => {
 
     client.disconnect();
     connectedRef.current = false;
+    setIsMqttConnected(false);
     console.log("MQTT disconnected");
+  }, []);
+
+  // Subscribe to a topic
+  const subscribe = useCallback((topic: string) => {
+    const client = clientRef.current!;
+    if (!client) {
+      // console.error("MQTT client is not initialized");
+      return;
+    }
+
+    client.subscribe(topic, {
+      onSuccess: () => {},
+      onFailure: (error: unknown) => {
+        console.error(`Failed to subscribe to topic ${topic}:`, error);
+      },
+    });
+    // Add to subscribed topics list
+    subscribedTopicsRef.current.add(topic);
   }, []);
 
   // Publish a message to a topic
@@ -100,20 +161,14 @@ export const useMqtt = () => {
     client.send(mqttMessage);
   }, []);
 
-  const isConnected = useMemo(() => {
-    const client = clientRef.current!;
-    if (!client) {
-      // console.error("MQTT client is not initialized");
-      return;
-    }
-    if (client) return client.isConnected();
-  }, []);
-
   return {
     connect,
     disconnect,
     publish,
-    isConnected,
+    isConnected: isMqttConnected,
     isClientReady,
+    messages,
+    loading,
+    subscribe,
   };
 };

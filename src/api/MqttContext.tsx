@@ -19,7 +19,7 @@ export const MqttProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const packet = searchParams.get("packet");
   const [decryptedPacket, setDecryptedPacket] = useState<any>(null);
-  const [isDecrypting, setIsDecrypting] = useState<boolean>(false);
+  const [isDecrypting, setIsDecrypting] = useState<boolean>(true);
   const { setPhoneNumber, setFarmerId, setJwt } = useID();
 
   const isOnboardPage = pathname.includes("/onboard");
@@ -30,13 +30,18 @@ export const MqttProvider = ({ children }: { children: React.ReactNode }) => {
     const decryptPacketFromUrl = async (packet: string | null) => {
       setIsDecrypting(true);
       try {
+        console.log("Packet from URL: ", packet);
+        console.log("Encoded packet:", encodeURIComponent(packet!));
+        console.log("Decoded packet:", decodeURIComponent(packet!));
         const decryptedPacket = (await decryptPacket(
-          packet!,
+          decodeURIComponent(packet!),
           "your-secret-key-here-make-it-long",
         )) as { phone?: string; jwt?: string };
+        console.log("Decrypted packet: ", decryptedPacket);
         setPhoneNumber(decryptedPacket?.phone || "");
         setDecryptedPacket(decryptedPacket);
         const decryptedJwt = jwtDecode(decryptedPacket?.jwt || "");
+        console.log("Decrypted JWT: ", decryptedJwt);
         setJwt(decryptedPacket?.jwt || "");
         setFarmerId(Number(decryptedJwt.sub) || -1);
       } catch (error) {
@@ -61,20 +66,20 @@ export const MqttProvider = ({ children }: { children: React.ReactNode }) => {
   const { connect, disconnect, isClientReady, isConnected } = mqtt;
 
   // Route user back to home if no packet param in URL
-  useEffect(() => {
-    if (isUATPage && !packet) {
-      router.push("/");
-      return;
-    }
-  }, [packet, router, isUATPage]);
+  // useEffect(() => {
+  //   if (isUATPage && !packet && !isDecrypting) {
+  //     router.push("/");
+  //     return;
+  //   }
+  // }, [packet, router, isUATPage]);
 
   if (!isOnboardPage && !isUATPage) {
     return <div>{children}</div>; // Return null if not on /onboard or /uat
   }
 
-  if (isUATPage && !packet) {
-    return null;
-  }
+  // if (isUATPage && !packet) {
+  //   return null;
+  // }
 
   // Connect once when client is ready
   //eslint-disable-next-line react-hooks/rules-of-hooks
@@ -85,7 +90,7 @@ export const MqttProvider = ({ children }: { children: React.ReactNode }) => {
           await connect();
         } catch (error) {
           console.error("error caught in MqttProvider:", error);
-          if (isUATPage) router.push("/"); // Redirect to home if connection fails
+          // if (isUATPage) router.push("/"); // Redirect to home if connection fails
         }
       };
 

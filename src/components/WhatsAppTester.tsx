@@ -96,7 +96,6 @@ export default function WhatsAppTester() {
       let previousRakanTaniMessages: RakanTaniMessage[] = [];
       let previousClientMessages: ClientMessage[] = [];
       // Only load chat history once
-      console.log("Chat history loaded:", chatHistoryLoaded);
       if (!chatHistoryLoaded && chatHistoryMessages.length > 0) {
         setChatHistoryLoaded(true);
         const chatHistoryObject: WhatsAppMessage[] = JSON.parse(
@@ -269,9 +268,7 @@ export default function WhatsAppTester() {
             ) : (
               <div className="flex flex-col justify-end items-stretch w-full h-full relative">
                 <WhatsAppChatHistory />
-                <div className="flex items-center justify-center sticky bottom-0 w-full bg-gray-300 z-10">
-                  <MessageInput onSendMessage={handleSendMessage} />
-                </div>
+                <MessageInput onSendMessage={handleSendMessage} />
               </div>
             )}
           </div>

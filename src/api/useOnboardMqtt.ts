@@ -63,7 +63,7 @@ export const useOnboardMqtt = (username: string, password: string) => {
         onFailure: (error: unknown) => {
           console.error("MQTT connection failed:", error);
         },
-        reconnect: false,
+        reconnect: true,
         keepAliveInterval: 120,
       };
 

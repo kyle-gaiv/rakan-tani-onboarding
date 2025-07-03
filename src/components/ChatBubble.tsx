@@ -18,6 +18,14 @@ export default function ChatBubble({
   collectFeedback = false,
   children,
 }: ChatBubbleProps) {
+  // If message has "As a beta tester" at the end, remove any text after it
+  if (message.includes("As a beta tester, ")) {
+    const index = message.indexOf("As a beta tester, ");
+    if (index !== -1) {
+      message = message.substring(0, index).trim();
+    }
+  }
+
   return (
     <div
       className={`grid grid-cols-3 gap-2 sm:gap-4 ${isUser ? "justify-end" : "justify-start"}`}
@@ -32,19 +40,21 @@ export default function ChatBubble({
             {senderName}
           </p>
         )}
-        <div
-          className={`flex flex-col items-start ${isUser ? "bg-green-100" : "bg-gray-100"} text-black p-2 sm:p-3 gap-1 rounded-lg max-w-full`}
-        >
-          {/* Render Markdown correctly to preserve text formatting */}
-          <div className="text-[14px] md:text-[16px] max-w-full overflow-x-auto">
-            <ReactMarkdown>{message}</ReactMarkdown>
+        <div className="flex flex-col gap-2 max-w-full">
+          <div
+            className={`flex flex-col items-start ${isUser ? "bg-green-100" : "bg-gray-100"} text-black p-2 sm:p-3 gap-1 rounded-lg w-full`}
+          >
+            {/* Render Markdown correctly to preserve text formatting */}
+            <div className="text-[14px] md:text-[16px] max-w-full overflow-x-auto">
+              <ReactMarkdown>{message}</ReactMarkdown>
+            </div>
+            <p className="text-[10px] md:text-[12px] text-gray-500 self-end">
+              {date.toLocaleString("en-GB")}
+            </p>
+            {/* Display thumbs up/down icons to collect feedback */}
           </div>
-          <p className="text-[10px] md:text-[12px] text-gray-500 self-end">
-            {date.toLocaleString("en-GB")}
-          </p>
+          {collectFeedback && <>{children}</>}
         </div>
-        {/* Display thumbs up/down icons to collect feedback */}
-        {collectFeedback && <>{children}</>}
       </div>
       {/* Pad right side to display message from rakan tani on left side */}
       {!isUser && <div></div>}

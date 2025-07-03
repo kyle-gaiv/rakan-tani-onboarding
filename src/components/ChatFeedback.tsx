@@ -75,6 +75,7 @@ const ChatFeedback = React.memo(
           },
         });
         publish(`uatfeedback`, message);
+        toast.success("Feedback submitted");
       } catch (error) {
         console.error("Error submitting good feedback:", error);
         toast.error(
@@ -106,6 +107,7 @@ const ChatFeedback = React.memo(
           },
         });
         publish(`uatfeedback`, message);
+        toast.success("Feedback submitted");
       } catch (error) {
         console.error("Error submitting feedback:", error);
         toast.error(
@@ -161,13 +163,13 @@ const ChatFeedback = React.memo(
       const result = messageContents.success as boolean;
 
       if (result) {
-        toast.success("Feedback submitted successfully!");
         setShowGoodFeedbackInputs(false);
         setGoodFeedback("");
         setShowFeedbackInputs(false);
         setFeedback("");
         setIdealResponse("");
       } else if (!result) {
+        toast.error("Failed to save feedback, please try again.");
         console.error("Failed to submit feedback, please try again.");
       }
     }, [messages, requestId, response.context_id, processedMessages]);

@@ -213,8 +213,6 @@ export function getMessagesFromChatHistory(
 
   // Process each message
   chatHistoryObject.forEach((message) => {
-    const query = message.query.trim();
-    const answer = message.answer.trim();
     const timestamp = new Date(message.modified)
       .getTime()
       .toString()
@@ -227,7 +225,7 @@ export function getMessagesFromChatHistory(
       client_phone: phoneNumber,
       timestamp: timestamp,
       client_name: "", // client name isn't used to display messages
-      m: query,
+      m: message.query ?? "",
     };
 
     const rakanTaniMessage = {
@@ -235,8 +233,8 @@ export function getMessagesFromChatHistory(
       phone_number_id: "603884736138857", // default rakan tani number
       client_phone: phoneNumber,
       timestamp: timestamp,
-      message: answer,
-      m: answer,
+      message: message.answer ?? "",
+      m: message.answer ?? "",
       farmer_id: farmerId,
       // Properties below are not essential to display messages, but are required by the RakanTaniMessage interface
       context_id: generateFakeWamid(), // generate a fake wamid for tracking purposes, acts as a unique identifier

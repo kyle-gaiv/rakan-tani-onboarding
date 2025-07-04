@@ -121,6 +121,7 @@ export default function FarmerSchedule({ farmerId }: { farmerId: number }) {
             cleanedMermaidText +
             `\n  class ${hltToNodeId(messageContents.hlt)} selected\n`;
           setMermaidChartText(newMermaidText);
+          setMermaidSuccessful(true);
         } else {
           // No update needed for current day
         }

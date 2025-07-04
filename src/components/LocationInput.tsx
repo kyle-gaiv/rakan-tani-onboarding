@@ -178,14 +178,14 @@ export default function LocationInput({
                 type="text"
                 value={latInput}
                 onChange={handleLatInputChange}
-                className={`bg-white rounded p-2 h-1/2 m-2 ${error ? "border border-red-500" : ""}`}
+                className={`bg-white rounded text-sm sm:text-base p-2 h-1/2 m-2 ${error ? "border border-red-500" : ""}`}
               />
               ,
               <input
                 type="text"
                 value={lngInput}
                 onChange={handleLngInputChange}
-                className={`bg-white rounded p-2 h-1/2 m-2 ${error ? "border border-red-500" : ""}`}
+                className={`bg-white rounded text-sm sm:text-base p-2 h-1/2 m-2 ${error ? "border border-red-500" : ""}`}
               />
               {")"}
             </p>

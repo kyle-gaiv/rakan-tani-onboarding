@@ -188,7 +188,7 @@ export default function OnboardingPage() {
                 <h2 className="text-2xl font-semibold">
                   Enter Your Information
                 </h2>
-                <div className="grid grid-cols-3 gap-8 w-full">
+                <div className="flex flex-col sm:grid sm:grid-cols-3 gap-8 w-full">
                   <div className="flex flex-col items-start justify-start gap-4 w-full">
                     <TextInput
                       label="Name"

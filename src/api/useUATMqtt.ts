@@ -23,7 +23,7 @@ export const useUATMqtt = (username: string, password: string) => {
 
     try {
       clientRef.current = new Paho.Client(
-        `wss://staging.rakantani.my:4000/ws`,
+        `wss://dev.gaiv.my:4000/ws`,
         clientId,
       );
       setIsClientReady(true);
@@ -72,6 +72,10 @@ export const useUATMqtt = (username: string, password: string) => {
             "Connection lost, reconnecting:",
             responseObject.errorMessage,
           );
+          // Retry connection with a delay
+          setTimeout(() => {
+            connect(); // Retry connection after a delay
+          }, 3000); // Delay before reconnecting (3 seconds)
           return;
         }
       };
@@ -102,7 +106,7 @@ export const useUATMqtt = (username: string, password: string) => {
           setLoading(false);
           setIsMqttConnected(false);
         },
-        reconnect: true,
+        reconnect: false,
         keepAliveInterval: 120,
       };
 

@@ -6,23 +6,23 @@ export const useOnboardMqtt = (username: string, password: string) => {
   // Configuration for the MQTT client
   const [isClientReady, setIsClientReady] = useState<boolean>(false);
   const { id } = useID();
-  const clientId = "onboard-" + id; // Unique client ID for the MQTT client
   const clientRef = useRef<Paho.Client | null>(null);
 
   // Populate states once the user has been prompted / local storage has been set
   useEffect(() => {
-    if (clientRef.current) return;
+    if (clientRef.current || !id) return;
+    const clientId = "onboard-" + id; // Unique client ID for the MQTT client
 
     try {
       clientRef.current = new Paho.Client(
-        `wss://staging.rakantani.my:4000/ws`,
+        `wss://dev.gaiv.my:4000/ws`,
         clientId,
       );
       setIsClientReady(true);
     } catch (error) {
       console.error("Error creating MQTT client:", error);
     }
-  }, [clientId]);
+  }, [id]);
 
   // Ref to keep track of the MQTT client connection
   const connectedRef = useRef<boolean>(false);

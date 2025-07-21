@@ -30,18 +30,18 @@ export const MqttProvider = ({ children }: { children: React.ReactNode }) => {
     const decryptPacketFromUrl = async (packet: string | null) => {
       setIsDecrypting(true);
       try {
-        console.log("Packet from URL: ", packet);
-        console.log("Encoded packet:", encodeURIComponent(packet!));
-        console.log("Decoded packet:", decodeURIComponent(packet!));
+        // console.log("Packet from URL: ", packet);
+        // console.log("Encoded packet:", encodeURIComponent(packet!));
+        // console.log("Decoded packet:", decodeURIComponent(packet!));
         const decryptedPacket = (await decryptPacket(
           decodeURIComponent(packet!),
           "your-secret-key-here-make-it-long",
         )) as { phone?: string; jwt?: string };
-        console.log("Decrypted packet: ", decryptedPacket);
+        // console.log("Decrypted packet: ", decryptedPacket);
         setPhoneNumber(decryptedPacket?.phone || "");
         setDecryptedPacket(decryptedPacket);
         const decryptedJwt = jwtDecode(decryptedPacket?.jwt || "");
-        console.log("Decrypted JWT: ", decryptedJwt);
+        // console.log("Decrypted JWT: ", decryptedJwt);
         setJwt(decryptedPacket?.jwt || "");
         setFarmerId(Number(decryptedJwt.sub) || -1);
       } catch (error) {

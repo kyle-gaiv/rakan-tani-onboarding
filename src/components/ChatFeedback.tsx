@@ -42,7 +42,9 @@ const ChatFeedback = React.memo(
           try {
             // Subscribe to the uat topics to receive schedule info and update schedule
             if (subscribe) {
-              subscribe(`uatfeedback/*`);
+              setTimeout(() => {
+                subscribe(`uatfeedback/*`);
+              }, 2000);
             }
           } catch (error) {
             console.error("Error initializing mqtt:", error);
